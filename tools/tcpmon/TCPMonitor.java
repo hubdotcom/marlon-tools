@@ -14,9 +14,9 @@ import java.util.concurrent.Executors;
 /**
  * <p>TCP监视器，它在本地监听端口，将请求转发到远端服务器，并将请求返回。</p>
  * 
- * <p><code>java TCPMonitor －a :8080 localhost:8000</code><br> 监听本地的8080端口，将请求转发给本机的8000端口，并将所有请求响应输出到标准错误输出。</p>
+ * <p><code>java TCPMonitor -a :8080 localhost:8000</code><br> 监听本地的8080端口，将请求转发给本机的8000端口，并将所有请求响应输出到标准错误输出。</p>
  * 
- * <p><code>java TCPMonitor :8080 cloak:22</code><br> 监听本地的8080端口，并将请求转发给cloak主机的22端口</p>
+ * <p><code>java TCPMonitor :8080 work:22</code><br> 监听本地的8080端口，并将请求转发给work主机的22端口。</p>
  * 
  * @author marlonyao<yaolei135@gmail.com>
  */
@@ -37,11 +37,11 @@ class TCPMonitor {
 		ServerSocket serverSocket = new ServerSocket();
 		serverSocket.setReuseAddress(true);
 		serverSocket.bind(new InetSocketAddress(options.host, options.port));
-		System.out.println("server started on " + serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort());
+		System.out.println("server started on " + serverSocket.getLocalSocketAddress());
 		Executor executor = Executors.newFixedThreadPool(options.threadCount);
 		while(true) {
 			Socket sock = serverSocket.accept();
-			System.out.println("accept connection: " + sock.getInetAddress());
+			System.out.println("accept connection: " + sock.getRemoteSocketAddress());
 			executor.execute(new MonitorThread(sock, options.remoteHost, options.remotePort, options.dumpRequest, options.dumpResponse));
 		}
 	}
@@ -91,6 +91,8 @@ class TCPMonitor {
 				} else {
 					options.threadCount = Integer.parseInt(args[i].substring("--threads=".length()));
 				}
+			} else {
+				throw new RuntimeException("unknown option '" + args[i] + "'");
 			}
 		}
 		// parse remainder
@@ -166,7 +168,7 @@ class MonitorThread implements Runnable {
 			writeRSockThread.join();
 			readRSockThread.join();
 			writeLSockThread.join();
-			System.out.println("connection closed: " + lsock.getInetAddress());
+			System.out.println("connection closed: " + lsock.getRemoteSocketAddress());
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
