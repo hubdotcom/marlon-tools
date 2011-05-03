@@ -8,18 +8,18 @@ import struct
 import time
 
 '''
-一个简单的DNS代理服务器，支持域名通配符匹配，缓存。 用法：
+A simple DNS proxy server, support wilcard hosts, IPv6, cache. Usage:
 
-编辑/etc/hosts，添加：
-127.0.0.1 *.local
-2404:6800:8005::62 *.blogspot.com
-
-启动dnsproxy(这里使用google的dns服务器，可以调整路由器默认使用的dns服务器):
+Edit /etc/hosts, add:
+    127.0.0.1 *.local
+    2404:6800:8005::62 *.blogspot.com
+startup dnsproxy(here use Google DNS server as delegating server):
 $ sudo python dnsproxy.py -s 8.8.8.8
 
-然后将系统dns服务器设置成127.0.0.1就可以了，可以用dig来验证。
-
+Then set system dns server as 127.0.0.1, you can verify it by dig:
 $ dig test.local
+
+The result should contains 127.0.0.1.
 
 author: marlonyao<yaolei135@gmail.com>
 '''
